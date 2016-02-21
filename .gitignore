@@ -1,3 +1,5 @@
 *.o
 validate
 planrec
+
+lex.yy.cc
