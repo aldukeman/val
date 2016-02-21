@@ -143,69 +143,69 @@ void usage()
 plan * getPlan(int& /*argc*/, char* argv[], int& argcount, TypeChecker& tc, 
   vector<string>& failed, string & name)
 {
-     plan * the_plan;
-     
-    if(LaTeX)
-    {
-      latex.LaTeXPlanReportPrepare(argv[argcount]);
-    }
-    else
-      if(!Silent) cout << "Checking plan: " << argv[argcount] << "\n";
+  plan * the_plan;
 
-    ifstream planFile(argv[argcount++]);
-    if(!planFile)
-    {
-      failed.push_back(name);
-      *report << "Bad plan file!\n";
-      the_plan = 0; return the_plan; 
-    };
+  if(LaTeX)
+    latex.LaTeXPlanReportPrepare(argv[argcount]);
+  else if(!Silent)
+    cout << "Checking plan: " << argv[argcount] << "\n";
 
-    yfl = new yyFlexLexer(&planFile,&cout);
-    yyparse();
-    delete yfl;
+  ifstream planFile(argv[argcount++]);
+  if(!planFile)
+  {
+    failed.push_back(name);
+    *report << "Bad plan file!\n";
+    the_plan = 0; return the_plan; 
+  }
 
-    the_plan = dynamic_cast<plan*>(top_thing);
+  yfl = new yyFlexLexer(&planFile,&cout);
+  yyparse();
+  delete yfl;
 
-      if(!the_plan || !tc.typecheckPlan(the_plan))
-      {
-        failed.push_back(name);
+  the_plan = dynamic_cast<plan*>(top_thing);
 
-        if(Silent < 2) *report << "Bad plan description!\n";
-        if(Silent > 1) *report << "failed\n";
-        delete the_plan;
-        the_plan = 0; return the_plan;       
-      };
+  if(!the_plan || !tc.typecheckPlan(the_plan))
+  {
+    failed.push_back(name);
 
-    if(the_plan->getTime() >= 0) {name += " - Planner run time: "; name += toString(the_plan->getTime());};
+    if(Silent < 2) *report << "Bad plan description!\n";
+    if(Silent > 1) *report << "failed\n";
+    delete the_plan;
+    the_plan = 0; return the_plan;       
+  }
 
-    return the_plan;
+  if(the_plan->getTime() >= 0)
+  {
+    name += " - Planner run time: ";
+    name += toString(the_plan->getTime());
+  }
 
+  return the_plan;
 }
 
 vector<plan_step *> getTimedInitialLiteralActions()
 {
-
   vector<plan_step *> timedIntitialLiteralActions;
-  
-    if(an_analysis.the_problem->initial_state->timed_effects.size() != 0)
-      {
-          int count = 1;
-           for(pc_list<timed_effect*>::const_iterator e = an_analysis.the_problem->initial_state->timed_effects.begin(); e != an_analysis.the_problem->initial_state->timed_effects.end(); ++e)
-           {                   
-                  operator_symbol * timed_initial_lit = an_analysis.op_tab.symbol_put("Timed Initial Literal Action "+ toString(count++));
 
-                  action  * timed_initial_lit_action = new action(timed_initial_lit,new var_symbol_list(),new conj_goal(new goal_list()),(*e)->effs,new var_symbol_table());
+  if(an_analysis.the_problem->initial_state->timed_effects.size() != 0)
+  {
+    int count = 1;
+    for(pc_list<timed_effect*>::const_iterator e = an_analysis.the_problem->initial_state->timed_effects.begin(); e != an_analysis.the_problem->initial_state->timed_effects.end(); ++e)
+    {                   
+      operator_symbol * timed_initial_lit = an_analysis.op_tab.symbol_put("Timed Initial Literal Action "+ toString(count++));
 
-                  plan_step * a_plan_step =  new plan_step(timed_initial_lit,new const_symbol_list());
-                  a_plan_step->start_time_given = true;
-                  a_plan_step->start_time = dynamic_cast<const timed_initial_literal *>(*e)->time_stamp;
+      action  * timed_initial_lit_action = new action(timed_initial_lit,new var_symbol_list(),new conj_goal(new goal_list()),(*e)->effs,new var_symbol_table());
 
-                  a_plan_step->duration_given = false;
+      plan_step * a_plan_step =  new plan_step(timed_initial_lit,new const_symbol_list());
+      a_plan_step->start_time_given = true;
+      a_plan_step->start_time = dynamic_cast<const timed_initial_literal *>(*e)->time_stamp;
 
-                  timedIntitialLiteralActions.push_back(a_plan_step);
-                  an_analysis.the_domain->ops->push_back(timed_initial_lit_action);
-           };
-      };
+      a_plan_step->duration_given = false;
+
+      timedIntitialLiteralActions.push_back(a_plan_step);
+      an_analysis.the_domain->ops->push_back(timed_initial_lit_action);
+    }
+  }
 
   return timedIntitialLiteralActions;
 }
@@ -213,9 +213,7 @@ vector<plan_step *> getTimedInitialLiteralActions()
 void deleteTimedIntitialLiteralActions(vector<plan_step *> tila)
 {
   for(vector<plan_step *>::iterator i = tila.begin(); i != tila.end(); ++i)
-  {
     delete *i;    
-  };  
 }
 
 //execute all the plans in the usual manner without robustness checking
@@ -227,142 +225,141 @@ void executePlans(int & argc,char * argv[],int & argcount,TypeChecker & tc,const
   vector<string> queries;
 
   while(argcount < argc)
-  {       
-      string name(argv[argcount]);
+  {
+    string name(argv[argcount]);
 
-      plan * the_plan = getPlan(argc,argv,argcount,tc,failed,name);
-      if(the_plan == 0) continue;     
+    plan * the_plan = getPlan(argc,argv,argcount,tc,failed,name);
+    if(the_plan == 0)
+      continue;     
 
-      plan * copythe_plan = new plan(*the_plan);
-      plan * planNoTimedLits = new plan();
-      vector<plan_step *> timedInitialLiteralActions = getTimedInitialLiteralActions();
-      double deadLine = 101;
+    plan * copythe_plan = new plan(*the_plan);
+    plan * planNoTimedLits = new plan();
+    vector<plan_step *> timedInitialLiteralActions = getTimedInitialLiteralActions();
+    double deadLine = 101;
 
-        //add timed initial literals to the plan from the problem spec
-       for(vector<plan_step *>::iterator ps = timedInitialLiteralActions.begin(); ps != timedInitialLiteralActions.end(); ++ps)
-       {
-          the_plan->push_back(*ps);
-       };
+    //add timed initial literals to the plan from the problem spec
+    for(vector<plan_step *>::iterator ps = timedInitialLiteralActions.begin(); ps != timedInitialLiteralActions.end(); ++ps)
+      the_plan->push_back(*ps);
 
-       //add actions that are not to be moved to the timed intitial literals otherwise to the plan to be repaired
-       //i.e. pretend these actions are timed initial literals
-       for(pc_list<plan_step*>::const_iterator i = copythe_plan->begin(); i != copythe_plan->end(); ++i)
-       {
-              planNoTimedLits->push_back(*i);
-       };
+    //add actions that are not to be moved to the timed intitial literals otherwise to the plan to be repaired
+    //i.e. pretend these actions are timed initial literals
+    for(pc_list<plan_step*>::const_iterator i = copythe_plan->begin(); i != copythe_plan->end(); ++i)
+      planNoTimedLits->push_back(*i);
 
-       copythe_plan->clear(); delete copythe_plan;
+    copythe_plan->clear(); delete copythe_plan;
        
-       PlanRepair pr(timedInitialLiteralActions,deadLine,derivRules,tolerance,tc,an_analysis.the_domain->ops,
-            an_analysis.the_problem->initial_state,
-            the_plan,planNoTimedLits,an_analysis.the_problem->metric,lengthDefault,
-            an_analysis.the_domain->isDurative(),an_analysis.the_problem->the_goal,current_analysis);
+    PlanRepair pr(timedInitialLiteralActions,deadLine,derivRules,tolerance,tc,an_analysis.the_domain->ops,
+      an_analysis.the_problem->initial_state,
+      the_plan,planNoTimedLits,an_analysis.the_problem->metric,lengthDefault,
+      an_analysis.the_domain->isDurative(),an_analysis.the_problem->the_goal,current_analysis);
 
     if(LaTeX)
-    {
       latex.LaTeXPlanReport(&(pr.getValidator()),the_plan);
-    }
     else if(Verbose)
       pr.getValidator().displayPlan();
 
+    bool showGraphs = false;
 
+    try
+    {
+      if(pr.getValidator().execute())
+      {
+        if(LaTeX)
+          *report << "Plan executed successfully - checking goal\\\\\n";
+        else if(!Silent)
+          cout << "Plan executed successfully - checking goal\n";
 
-      bool showGraphs = false;
-
-
-      try {
-
-        if(pr.getValidator().execute())
+        if(pr.getValidator().checkGoal(an_analysis.the_problem->the_goal))
         {
-          if(LaTeX)
-            *report << "Plan executed successfully - checking goal\\\\\n";
-          else
-            if(!Silent) cout << "Plan executed successfully - checking goal\n";
-
-          if(pr.getValidator().checkGoal(an_analysis.the_problem->the_goal))
-
+          if(!(pr.getValidator().hasInvariantWarnings()))
           {
-            if(!(pr.getValidator().hasInvariantWarnings()))
-            {
-              rnk[pr.getValidator().finalValue()].push_back(name);
-              if(!Silent && !LaTeX) *report << "Plan valid\n";
-              if(LaTeX) *report << "\\\\\n";
-              if(!Silent && !LaTeX) *report << "Final value: " << pr.getValidator().finalValue() << "\n";
-              if(Silent > 1) 
-              {
-                *report << pr.getValidator().finalValue() << "\n";
-              }
-            }
-            else
-            {
-            rnkInv[pr.getValidator().finalValue()].push_back(name);
-              if(!Silent && !LaTeX) *report << "Plan valid (subject to further invariant checks)\n";
-              if(LaTeX) *report << "\\\\\n";
-              if(!Silent && !LaTeX) *report << "Final value: " << pr.getValidator().finalValue();
-            if(Silent > 1)
-            {
-              *report << "failed\n";
-            }
-              };
-                if(Verbose)
-                {
-                  pr.getValidator().reportViolations();
-                };
+            rnk[pr.getValidator().finalValue()].push_back(name);
+            if(!Silent && !LaTeX)
+              *report << "Plan valid\n";
+            if(LaTeX)
+              *report << "\\\\\n";
+            if(!Silent && !LaTeX)
+              *report << "Final value: " << pr.getValidator().finalValue() << "\n";
+            if(Silent > 1) 
+              *report << pr.getValidator().finalValue() << "\n";
           }
           else
           {
-            failed.push_back(name);
-            if(Silent < 2) *report << "Goal not satisfied\n";
-            if(Silent > 1) *report << "failed\n";
-
-            if(LaTeX) *report << "\\\\\n";
-            if(Silent < 2) *report << "Plan invalid\n";
-        ++errorCount;
-      };
-
+            rnkInv[pr.getValidator().finalValue()].push_back(name);
+            if(!Silent && !LaTeX)
+              *report << "Plan valid (subject to further invariant checks)\n";
+            if(LaTeX)
+              *report << "\\\\\n";
+            if(!Silent && !LaTeX)
+              *report << "Final value: " << pr.getValidator().finalValue();
+            if(Silent > 1)
+              *report << "failed\n";
+          }
+          if(Verbose)
+            pr.getValidator().reportViolations();
         }
         else
         {
           failed.push_back(name);
-      ++errorCount;
-                   if(ContinueAnyway)
-                  {
-                     if(LaTeX) *report << "\nPlan failed to execute - checking goal\\\\\n";
-                     else 
-                     {
-                       if(Silent < 2) *report << "\nPlan failed to execute - checking goal\n";
-            if(Silent > 1) *report << "failed\n";
-          }
-                     if(!pr.getValidator().checkGoal(an_analysis.the_problem->the_goal)) *report << "\nGoal not satisfied\n";
+          if(Silent < 2)
+            *report << "Goal not satisfied\n";
+          if(Silent > 1)
+            *report << "failed\n";
 
-                 }
-
-                 else {
-                   if(Silent < 2) *report << "\nPlan failed to execute\n";
-          if(Silent > 1) *report << "failed\n";
+          if(LaTeX)
+            *report << "\\\\\n";
+          if(Silent < 2)
+            *report << "Plan invalid\n";
+          ++errorCount;
         }
+      }
+      else
+      {
+          failed.push_back(name);
+        ++errorCount;
+        if(ContinueAnyway)
+        {
+          if(LaTeX)
+            *report << "\nPlan failed to execute - checking goal\\\\\n";
+          else 
+          {
+            if(Silent < 2)
+              *report << "\nPlan failed to execute - checking goal\n";
+            if(Silent > 1)
+              *report << "failed\n";
+          }
+          if(!pr.getValidator().checkGoal(an_analysis.the_problem->the_goal))
+            *report << "\nGoal not satisfied\n";
+        }
+        else
+        {
+          if(Silent < 2)
+            *report << "\nPlan failed to execute\n";
+          if(Silent > 1)
+            *report << "failed\n";
+        }
+      }
 
-        };
-
-              if(pr.getValidator().hasInvariantWarnings())
-              {
-            if(LaTeX)
-              *report << "\\\\\n\\\\\n";
-            else
-              if(Silent < 2) *report << "\n\n";
+      if(pr.getValidator().hasInvariantWarnings())
+      {
+        if(LaTeX)
+          *report << "\\\\\n\\\\\n";
+        else if(Silent < 2)
+          *report << "\n\n";
 
 
-              *report << "This plan has the following further condition(s) to check:";
+        *report << "This plan has the following further condition(s) to check:";
 
-            if(LaTeX)
-              *report << "\\\\\n\\\\\n";
-            else
-              if(Silent < 2) *report << "\n\n";
+        if(LaTeX)
+          *report << "\\\\\n\\\\\n";
+        else if(Silent < 2)
+          *report << "\n\n";
 
-            pr.getValidator().displayInvariantWarnings();
-            };
+        pr.getValidator().displayInvariantWarnings();
+      }
 
-        if(pr.getValidator().graphsToShow()) showGraphs = true;
+      if(pr.getValidator().graphsToShow())
+        showGraphs = true;
     }
     catch(exception & e)
     {
@@ -372,47 +369,34 @@ void executePlans(int & argc,char * argv[],int & argcount,TypeChecker & tc,const
         *report << "\\end{tabbing}\n";
         *report << "Error occurred in validation attempt:\\\\\n  " << e.what() << "\n";
       }
-      else
-        if(Silent < 2) *report << "Error occurred in validation attempt:\n  " << e.what() << "\n";
+      else if(Silent < 2)
+        *report << "Error occurred in validation attempt:\n  " << e.what() << "\n";
 
       queries.push_back(name);
-
-    };
+    }
 
     //display error report and plan repair advice
-      if(giveAdvice && (Verbose || ErrorReport))
-     {
-            pr.firstPlanAdvice();
-      };
+    if(giveAdvice && (Verbose || ErrorReport))
+      pr.firstPlanAdvice();
 
-      //display LaTeX graphs of PNEs
-        if(LaTeX && showGraphs)
-    {
+    //display LaTeX graphs of PNEs
+    if(LaTeX && showGraphs)
       latex.LaTeXGraphs(&(pr.getValidator()));
-    };
 
     //display gantt chart of plan
     if(LaTeX)
-    {
       latex.LaTeXGantt(&(pr.getValidator()));
-
-    };
 
     planNoTimedLits->clear(); delete planNoTimedLits;
     delete the_plan;
-  };
+  }
 
   if(!rnk.empty())
   {
     if(LaTeX)
-    {
       *report << "\\section{Successful Plans}\n";
-
-
-    }
-    else
-      if(!Silent) cout << "\nSuccessful plans:";
-
+    else if(!Silent)
+      cout << "\nSuccessful plans:";
 
     if(an_analysis.the_problem->metric &&
         an_analysis.the_problem->metric->opt == E_MINIMIZE)
@@ -421,13 +405,13 @@ void executePlans(int & argc,char * argv[],int & argcount,TypeChecker & tc,const
       {
         *report << "\\begin{tabbing}\n";
         *report << "{\\bf Value} \\qquad \\= {\\bf Plan}\\\\[0.8ex]\n";
-      };
+      }
 
+      if(!Silent && !LaTeX)
+        for_each(rnk.begin(),rnk.end(),showList());
 
-      if(!Silent && !LaTeX) for_each(rnk.begin(),rnk.end(),showList());
-
-      if(LaTeX) *report << "\\end{tabbing}\n";
-
+      if(LaTeX)
+        *report << "\\end{tabbing}\n";
     }
     else
     {
@@ -435,31 +419,25 @@ void executePlans(int & argc,char * argv[],int & argcount,TypeChecker & tc,const
       {
         *report << "\\begin{tabbing}\n";
         *report << "{\\bf Value} \\qquad \\= {\\bf Plan}\\\\[0.8ex]\n";
-      };
+      }
 
+      if(!Silent && !LaTeX)
+        for_each(rnk.rbegin(),rnk.rend(),showList());
 
-      if(!Silent && !LaTeX) for_each(rnk.rbegin(),rnk.rend(),showList());
+      if(LaTeX)
+        *report << "\\end{tabbing}\n";
+    }
 
-
-
-      if(LaTeX) *report << "\\end{tabbing}\n";
-    };
-
-
-
-    if(!Silent) *report << "\n";
-  };
+    if(!Silent)
+      *report << "\n";
+  }
 
   if(!rnkInv.empty())
   {
     if(LaTeX)
-    {
       *report << "\\section{Successful Plans Subject To Further Checks}\n";
-
-    }
-    else
-
-      if(!Silent) cout << "\nSuccessful Plans Subject To Further Invariant Checks:";
+    else if(!Silent)
+      cout << "\nSuccessful Plans Subject To Further Invariant Checks:";
 
 
     if(an_analysis.the_problem->metric &&
@@ -469,11 +447,12 @@ void executePlans(int & argc,char * argv[],int & argcount,TypeChecker & tc,const
       {
         *report << "\\begin{tabbing}\n";
         *report << "{\\bf Value} \\qquad \\= {\\bf Plan}\\\\[0.8ex]\n";
-      };
+      }
 
-      for_each(rnkInv.begin(),rnkInv.end(),showList());
+      for_each(rnkInv.begin(), rnkInv.end(), showList());
 
-      if(LaTeX) *report << "\\end{tabbing}\n";
+      if(LaTeX)
+        *report << "\\end{tabbing}\n";
     }
     else
     {
@@ -481,89 +460,75 @@ void executePlans(int & argc,char * argv[],int & argcount,TypeChecker & tc,const
       {
         *report << "\\begin{tabbing}\n";
         *report << "{\\bf Value} \\qquad \\= {\\bf Plan}\\\\[0.8ex]\n";
-      };
+      }
 
-      for_each(rnkInv.rbegin(),rnkInv.rend(),showList());
+      for_each(rnkInv.rbegin(), rnkInv.rend(), showList());
 
-      if(LaTeX) *report << "\\end{tabbing}\n";
-    };
+      if(LaTeX)
+        *report << "\\end{tabbing}\n";
+    }
 
-
-
-    if(!Silent) *report << "\n";
-  };
+    if(!Silent)
+      *report << "\n";
+  }
 
   if(!failed.empty())
   {
     if(LaTeX)
-    {
       *report << "\\section{Failed Plans}\n";
-
-    }
-    else
-      if(Silent < 2) *report << "\n\nFailed plans:\n ";
+    else if(Silent < 2)
+      *report << "\n\nFailed plans:\n ";
 
     if(LaTeX)
       displayFailedLaTeXList(failed);
-    else
-      if(Silent < 2) copy(failed.begin(), failed.end(), ostream_iterator<string>(*report," "));
+    else if(Silent < 2)
+      copy(failed.begin(), failed.end(), ostream_iterator<string>(*report," "));
 
-
-
-    if(Silent < 2) *report << "\n";
-  };
+    if(Silent < 2)
+      *report << "\n";
+  }
 
   if(!queries.empty())
   {
     if(LaTeX)
-    {
       *report << "\\section{Queries (validator failed)}\n";
-
-    }
-    else
-      if(Silent < 2) *report << "\n\nQueries (validator failed):\n ";
+    else if(Silent < 2)
+      *report << "\n\nQueries (validator failed):\n ";
 
     if(LaTeX)
       displayFailedLaTeXList(queries);
-    else
-      if(Silent < 2) copy(queries.begin(),queries.end(),ostream_iterator<string>(*report," "));
+    else if(Silent < 2)
+      copy(queries.begin(),queries.end(),ostream_iterator<string>(*report," "));
 
-
-
-    if(Silent < 2) *report << "\n";
-  };
-
+    if(Silent < 2)
+      *report << "\n";
+  }
 }
 
 void analysePlansForRobustness(int & argc,char * argv[],int & argcount,TypeChecker & tc,const DerivationRules * derivRules,
-          double tolerance,bool lengthDefault,bool /*giveAdvice*/,double robustMeasure,int noTestPlans,bool car,bool cpr,RobustMetric robm,RobustDist robd)
+  double tolerance,bool lengthDefault,bool /*giveAdvice*/,double robustMeasure,int noTestPlans,bool car,bool cpr,RobustMetric robm,RobustDist robd)
 {
   vector<string> failed;
   srand(time(0)); // Initialize random number generator.
   vector<plan_step *> timedIntitialLiteralActions = getTimedInitialLiteralActions();
 
-
   while(argcount < argc)
   {
-      string name(argv[argcount]);
-      plan * the_plan = getPlan(argc,argv,argcount,tc,failed,name);
-      if(the_plan == 0) continue;
-
+    string name(argv[argcount]);
+    plan * the_plan = getPlan(argc,argv,argcount,tc,failed,name);
+    if(the_plan == 0)
+      continue;
       
-      
-      RobustPlanAnalyser rpa(robustMeasure,noTestPlans,derivRules,tolerance,tc,an_analysis.the_domain->ops,
-            an_analysis.the_problem->initial_state,
-            the_plan,an_analysis.the_problem->metric,lengthDefault,
-            an_analysis.the_domain->isDurative(),an_analysis.the_problem->the_goal,current_analysis,timedIntitialLiteralActions,car,cpr,robm,robd);
+    RobustPlanAnalyser rpa(robustMeasure,noTestPlans,derivRules,tolerance,tc,an_analysis.the_domain->ops,
+      an_analysis.the_problem->initial_state,
+      the_plan,an_analysis.the_problem->metric,lengthDefault,
+      an_analysis.the_domain->isDurative(),an_analysis.the_problem->the_goal,current_analysis,timedIntitialLiteralActions,car,cpr,robm,robd);
+    rpa.analyseRobustness();
 
-      rpa.analyseRobustness();
-
-      delete the_plan;
-
-  };
+    delete the_plan;
+  }
   
   deleteTimedIntitialLiteralActions(timedIntitialLiteralActions);
-  
 }
 
 //main 
@@ -739,25 +704,24 @@ int main(int argc,char * argv[])
         break;
 
       case 'p':
-
         latex.setnoGCPages(atoi(argv[++argcount]));
 
         latex.setnoGCPageRows(atoi(argv[++argcount]));
         ++argcount;
         break;
+
       case 'q':
         latex.setnoPoints(atoi(argv[++argcount]));
         ++argcount;
         break;
+
       case 'o':
         ++argcount;
         if(ganttObjectsGot)
           break;
         
-        while( !( (argv[argcount][0] == '-') && (argv[argcount][1] == 'o')) )
-        {
+        while(!((argv[argcount][0] == '-') && (argv[argcount][1] == 'o')))
           latex.addGanttObject(argv[argcount++]);  
-        }
 
         ganttObjectsGot = true;
         ++argcount;
@@ -765,7 +729,6 @@ int main(int argc,char * argv[])
 
       case 'm':
         makespanDefault = true;
-
         ++argcount;
         break;
 
@@ -798,7 +761,6 @@ int main(int argc,char * argv[])
       usage();
       return 0;
     }
-
 
     if(LaTeX)
     {
@@ -900,7 +862,8 @@ int main(int argc,char * argv[])
     delete derivRules;
   
     //LaTeX footer
-    if(LaTeX) latex.LaTeXEnd();
+    if(LaTeX)
+      latex.LaTeXEnd();
    
   }
   catch(exception & e)
