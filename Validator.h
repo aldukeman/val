@@ -66,10 +66,10 @@ namespace VAL
   class plan;
   class TypeChecker;
 
-  struct FEGraph{
-
+  struct FEGraph
+  {
     const FuncExp* fe;
-      string title;
+    string title;
     map<double,double> points;
     set<double> happenings;
     map<double,pair<double,double> > discons; //discontinuities; time , left hand side value and right
@@ -94,23 +94,24 @@ namespace VAL
     void displayLaTeXGraph(double maxTime);
     void drawLaTeXAxis(double maxTime) const;
     void drawLaTeXLine(double t1,double y1,double t2,double y2,double maxTime) const;
-     void amendPoints(double maxTime);
+    void amendPoints(double maxTime);
   };
 
-  struct GanttElement{
+  struct GanttElement
+  {
     double start;
     double end;
     string label;
 
     vector<string> sigObjs; //significant objects for this Element
 
-
-    GanttElement(double s,double e,string l,vector<string> so) : start(s),end(e),label(l),sigObjs(so) {};
-
+    GanttElement(double s,double e,string l,vector<string> so) : start(s),end(e),label(l),sigObjs(so)
+    {
+    }
   };
 
-  struct Gantt{
-
+  struct Gantt
+  {
     double maxTime;
     vector<string>  sigObjs;//significant objects, will tried to be grouped in gantt chart
     vector<string>  usedSigObjs;
@@ -120,7 +121,6 @@ namespace VAL
     static const double graphH;
     static const double graphV;
     static const int pointSize;
-
 
     Gantt() : maxTime(0), sigObjs(), usedSigObjs(), chartRows()  {};
 
@@ -145,17 +145,17 @@ namespace VAL
     void drawLaTeXDAElement(const GanttElement* ge,int row,int pos,double startTime,double endTime,int numRows) const;
     void drawLaTeXElement(const GanttElement* ge,int row,int pos,double startTime,double endTime,int numRows) const;
     pair<double,double> transPoint(double x,double y) const;
-
   };
 
-  class DerivationRules {
+  class DerivationRules
+  {
   private:
     derivations_list* drvs;
     const operator_list* ops;
     map<string,pair<const goal *,const var_symbol_table *> > derivPreds;
     vector<const disj_goal *> repeatedDPDisjs;//used to keep list of disj to be deleted
-  public:
 
+  public:
     DerivationRules(const derivations_list* d,const operator_list* o);
     ~DerivationRules();
 
