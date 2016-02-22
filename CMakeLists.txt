@@ -42,3 +42,7 @@ add_library(val SHARED
   src/val/typecheck.cpp
   src/val/Utils.cpp
   src/val/Validator.cpp)
+
+# validate instructions
+add_executable(validate src/validate.cpp)
+target_link_libraries(validate val)
