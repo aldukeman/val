@@ -1,5 +1,8 @@
-*.o
-validate
-planrec
-
-lex.yy.cc
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+include/val/VAL_Config.h
+include/val/VAL_Config.h.in
+src/val/pddl+.cpp
+src/val/lex.yy.cc
