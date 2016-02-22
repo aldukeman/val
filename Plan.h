@@ -116,18 +116,19 @@ namespace VAL
     void enact(State * s) const;
   };
   
-  class Happening {
+  class Happening
+  {
   private:
-    Validator * vld;
+    Validator* vld;
   
     double time;
     vector<const Action*> actions;
   
-    Happening(Validator * v) :
+    Happening(Validator* v) :
       vld(v), time(0.0), actions(), eventHappening(false),realHappening(false), afterPlan(false)
-    {};
+    {}
   
-     bool eventHappening;
+    bool eventHappening;
     bool realHappening;
     bool afterPlan;
   
@@ -137,39 +138,38 @@ namespace VAL
   
   private:
     template<typename X> struct select2nd {
-      typename X::second_type operator()(X p){return p.second;};
+      typename X::second_type operator()(X p) { return p.second; }
     };
   
-  
   public:
-    Happening(Validator * v,const vector<pair<double,Action*> > & as,double timeEndPlan);
-    Happening(Validator * v,double timeToExecute,const vector<pair<double,Action*> > & as);
-  
-    Happening(Validator * v,vector<const Action*>  acts,bool event = false);   //for creating event happenings
-    Happening(Validator * v, vector<const Action*> acts,double t,bool event =false);
+    Happening(Validator* v, const vector<pair<double,Action*> >& as, double timeEndPlan);
+    Happening(Validator* v, double timeToExecute, const vector<pair<double,Action*> >& as);
+
+    Happening(Validator* v, vector<const Action*> acts, bool event = false);   //for creating event happenings
+    Happening(Validator* v, vector<const Action*> acts, double t, bool event = false);
     ~Happening();
   
-    void adjustContext(ExecutionContext &) const;
-    void adjustContextInvariants(ExecutionContext &) const; //invariant interval is ( , ] or ( , ) ?
-    void adjustActiveCtsEffects(ActiveCtsEffects &) const;
+    void adjustContext(ExecutionContext&) const;
+    void adjustContextInvariants(ExecutionContext&) const; //invariant interval is ( , ] or ( , ) ?
+    void adjustActiveCtsEffects(ActiveCtsEffects&) const;
   
-    double getTime() const {return time;};
-    int getNoActions() const {return actions.size();};
-    const vector<const Action*> * getActions() const {return &actions;};
+    double getTime() const { return time; }
+    int getNoActions() const { return actions.size(); }
+    const vector<const Action*>* getActions() const { return &actions; }
   
-    void clearActions() {actions.clear();};
-    bool canHappen(const State * s) const;
-    bool applyTo(State * s) const;
-  
-  
-    void write(ostream & o) const;
-  
-    bool isAfterPlan() const {return afterPlan;};
-     bool isRegularHappening() const {return realHappening;};
-     void inject(Action * a) {actions.push_back(a);};
+    void clearActions() { actions.clear(); }
+    bool canHappen(const State* s) const;
+    bool applyTo(State* s) const;
+
+    void write(ostream& o) const;
+
+    bool isAfterPlan() const { return afterPlan; }
+    bool isRegularHappening() const { return realHappening; }
+    void inject(Action* a) { actions.push_back(a); }
   };
   
-  struct ExecutionContext {
+  struct ExecutionContext
+  {
     Happening invariants;  // Also includes the temporal conditional effects monitors.
   
     ExecutionContext(Validator * v);
@@ -181,17 +181,14 @@ namespace VAL
     void setTime(double t);
     void setActiveCtsEffects(ActiveCtsEffects * ace);
   
-    const Happening * getInvariants() const {return &invariants;};
+    const Happening * getInvariants() const { return &invariants; }
     bool hasInvariants() const;
     ~ExecutionContext();
-  
   };
-  
-  
-  typedef pair<pair<const expression *,bool>, const Environment *> ExprnPair; //bool is true if increasing
-  
+
+  typedef pair<pair<const expression*, bool>, const Environment*> ExprnPair; //bool is true if increasing
+
   struct ActiveFE {
-  
     const FuncExp * fe;
     vector<const ActiveFE*> parentFEs;  //an active FE that this FE depends on, there may be 0 or many
   
