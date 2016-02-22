@@ -51,8 +51,8 @@ thing+             c_things          thing_list
 //#include "FlexLexer.h"
 //#include <FlexLexer.h>
 
-#include "val/ptree.h"
-#include "val/parse_error.h"
+#include "ptree.h"
+#include "parse_error.h"
 
 #define YYDEBUG 1 
 

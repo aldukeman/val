@@ -6,3 +6,4 @@ include/val/VAL_Config.h
 include/val/VAL_Config.h.in
 src/val/pddl+.cpp
 src/val/lex.yy.cc
+libval.so
