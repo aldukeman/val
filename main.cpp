@@ -248,10 +248,11 @@ void executePlans(int & argc,char * argv[],int & argcount,TypeChecker & tc,const
 
     copythe_plan->clear(); delete copythe_plan;
        
-    PlanRepair pr(timedInitialLiteralActions,deadLine,derivRules,tolerance,tc,an_analysis.the_domain->ops,
-      an_analysis.the_problem->initial_state,
-      the_plan,planNoTimedLits,an_analysis.the_problem->metric,lengthDefault,
-      an_analysis.the_domain->isDurative(),an_analysis.the_problem->the_goal,current_analysis);
+    PlanRepair pr(timedInitialLiteralActions, deadLine, derivRules, tolerance, tc, 
+      an_analysis.the_domain->ops, an_analysis.the_problem->initial_state, the_plan, 
+      planNoTimedLits, an_analysis.the_problem->metric, lengthDefault, 
+      an_analysis.the_domain->isDurative(), an_analysis.the_problem->the_goal, 
+      current_analysis);
 
     if(LaTeX)
       latex.LaTeXPlanReport(&(pr.getValidator()),the_plan);
@@ -282,6 +283,7 @@ void executePlans(int & argc,char * argv[],int & argcount,TypeChecker & tc,const
               *report << "Final value: " << pr.getValidator().finalValue() << "\n";
             if(Silent > 1) 
               *report << pr.getValidator().finalValue() << "\n";
+            pr.getValidator().getState().write(*report);
           }
           else
           {
