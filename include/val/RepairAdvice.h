@@ -194,20 +194,20 @@ namespace VAL
   
   class ErrorLog {
   private:
-    static std::auto_ptr<UnsatConditionFactory> fac;
+    static std::unique_ptr<UnsatConditionFactory> fac;
     
     vector<const UnsatCondition *> conditions; 
   public:
     template<typename Fac>
     static void replace() { 
-    	std::auto_ptr<Fac> f(new Fac);
-    	fac = f;
+    	std::unique_ptr<Fac> f(new Fac);
+    	fac = std::move(f);
     }
     template<typename Fac>
     static void replace(Fac * f)
     {
-    	std::auto_ptr<Fac> nf(f);
-    	fac = nf;
+    	std::unique_ptr<Fac> nf(f);
+    	fac = std::move(nf);
     }
     ErrorLog() {};
     ~ErrorLog();

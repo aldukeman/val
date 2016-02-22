@@ -69,7 +69,7 @@ using std::list;
 using std::map;
 using std::cout;
 using std::string;
-using std::auto_ptr;
+using std::unique_ptr;
 using std::ostream;
 
 namespace VAL {
@@ -214,14 +214,14 @@ namespace VAL {
   class parse_category
   {
   protected:
-    static auto_ptr<WriteController> wcntr;
+    static unique_ptr<WriteController> wcntr;
   public:
     parse_category() {}
     virtual ~parse_category() {}
     virtual void display(int ind) const;
     virtual void write(ostream&) const {}
     virtual void visit(VisitController*) const {}
-    static void setWriteController(auto_ptr<WriteController> w);
+    static void setWriteController(unique_ptr<WriteController>& w);
     static WriteController* recoverWriteController();
   };
 
@@ -288,22 +288,21 @@ namespace VAL {
   {
   private:
     typedef map<string,symbol_class*> _Base;
-    auto_ptr<SymbolFactory<symbol_class> > factory;
+    std::shared_ptr<SymbolFactory<symbol_class> > factory;
 
   public :
-
     symbol_table() : factory(new SymbolFactory<symbol_class>()) {}
 
     void setFactory(SymbolFactory<symbol_class> * sf)
     {
-      auto_ptr<SymbolFactory<symbol_class> > x(sf);
+      std::shared_ptr<SymbolFactory<symbol_class> > x(sf);
       factory = x;
     }
 
     template<class T>
     void replaceFactory()
     {
-      auto_ptr<SymbolFactory<symbol_class> > x(new SpecialistSymbolFactory<symbol_class,T>());
+      std::shared_ptr<SymbolFactory<symbol_class> > x(new SpecialistSymbolFactory<symbol_class,T>());
       factory = x;
     }
 
@@ -1748,29 +1747,29 @@ namespace VAL {
   class analysis
   {
   private:
-    auto_ptr<VarTabFactory> varTabFactory;
-    auto_ptr<StructureFactory> strucFactory;
+    unique_ptr<VarTabFactory> varTabFactory;
+    unique_ptr<StructureFactory> strucFactory;
 
   public:
-    var_symbol_table * buildPredTab() {return varTabFactory->buildPredTab();};
-    var_symbol_table * buildFuncTab() {return varTabFactory->buildFuncTab();};
-    var_symbol_table * buildForallTab() {return varTabFactory->buildForallTab();};
-    var_symbol_table * buildExistsTab() {return varTabFactory->buildExistsTab();};
-    var_symbol_table * buildRuleTab() {return varTabFactory->buildRuleTab();};
-    var_symbol_table * buildOpTab() {return varTabFactory->buildOpTab();};
+    var_symbol_table* buildPredTab() {return varTabFactory->buildPredTab();};
+    var_symbol_table* buildFuncTab() {return varTabFactory->buildFuncTab();};
+    var_symbol_table* buildForallTab() {return varTabFactory->buildForallTab();};
+    var_symbol_table* buildExistsTab() {return varTabFactory->buildExistsTab();};
+    var_symbol_table* buildRuleTab() {return varTabFactory->buildRuleTab();};
+    var_symbol_table* buildOpTab() {return varTabFactory->buildOpTab();};
 
-    durative_action * buildDurativeAction() {return strucFactory->buildDurativeAction();};
-    action * buildAction(operator_symbol* nm,
+    durative_action* buildDurativeAction() {return strucFactory->buildDurativeAction();};
+    action* buildAction(operator_symbol* nm,
         var_symbol_list* ps,
         goal* pre,
         effect_lists* effs,
         var_symbol_table* st) {return strucFactory->buildAction(nm,ps,pre,effs,st);};
-    event * buildEvent(operator_symbol* nm,
+    event* buildEvent(operator_symbol* nm,
          var_symbol_list* ps,
          goal* pre,
          effect_lists* effs,
          var_symbol_table* st) {return strucFactory->buildEvent(nm,ps,pre,effs,st);};
-    process * buildProcess(operator_symbol* nm,
+    process* buildProcess(operator_symbol* nm,
          var_symbol_list* ps,
          goal* pre,
          effect_lists* effs,
@@ -1778,14 +1777,14 @@ namespace VAL {
 
     void setFactory(VarTabFactory * vf)
     {
-      auto_ptr<VarTabFactory> x(vf);
-      varTabFactory = x;
+      unique_ptr<VarTabFactory> x(vf);
+      varTabFactory = std::move(x);
     };
 
     void setFactory(StructureFactory * sf)
     {
-      auto_ptr<StructureFactory> x(sf);
-      strucFactory = x;
+      unique_ptr<StructureFactory> x(sf);
+      strucFactory = std::move(x);
     };
 
       var_symbol_table_stack var_tab_stack;

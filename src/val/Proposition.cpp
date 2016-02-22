@@ -2992,11 +2992,11 @@ namespace VAL
   
   void QfiedGoal::write(ostream & o) const
   {
-  	auto_ptr<WriteController> w(parse_category::recoverWriteController());
-  	auto_ptr<WriteController> p(new PrettyPrinter());
+  	std::unique_ptr<WriteController> w(parse_category::recoverWriteController());
+  	std::unique_ptr<WriteController> p(new PrettyPrinter());
   	parse_category::setWriteController(p);
     o<< *qg << "\n";
-    	parse_category::setWriteController(w);
+    parse_category::setWriteController(w);
   }
   
   void PreferenceGoal::write(ostream & o) const

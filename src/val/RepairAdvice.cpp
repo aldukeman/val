@@ -50,11 +50,10 @@
 
 namespace VAL
 {
-  auto_ptr<UnsatConditionFactory> ErrorLog::fac(new UnsatConditionFactory);
+  std::unique_ptr<UnsatConditionFactory> ErrorLog::fac(new UnsatConditionFactory);
   
   string UnsatCondition::getAdviceString() const
   {
-     
      string ans;
      ostringstream aStringStream;
      ostream * oldReport = report;
