@@ -166,7 +166,6 @@ namespace VAL {
   /*---------------------------------------------------------------------------
     PDDL requirements flags
     -------------------------------------------------------------------------*/
-
   typedef unsigned long pddl_req_flag;
 
   // When changing these, also look at the function pddl_req_attribute_name()
@@ -519,14 +518,11 @@ namespace VAL {
   typedef typed_symbol_list<const_symbol> const_symbol_list;
   typedef typed_symbol_list<pddl_type> pddl_type_list;
 
-
-
   /*----------------------------------------------------------------------------
     Symbols
      used for constants, variables, types, and predicate names.
      Generally, a pointer to a symbol will be used as a unique identifier.
     --------------------------------------------------------------------------*/
-
   class symbol : public parse_category
   {
   protected:
@@ -563,19 +559,19 @@ namespace VAL {
   class pddl_typed_symbol : public symbol
   {
   public:
-      pddl_type* type;               // parent type
-      pddl_type_list* either_types;  // types declared with 'either'
+    pddl_type* type;               // parent type
+    pddl_type_list* either_types;  // types declared with 'either'
 
-      pddl_typed_symbol() : symbol(""), type(NULL), either_types(NULL) {}
-      pddl_typed_symbol(const string& s) : symbol(s), type(NULL), either_types(NULL) {}
+    pddl_typed_symbol() : symbol(""), type(NULL), either_types(NULL) {}
+    pddl_typed_symbol(const string& s) : symbol(s), type(NULL), either_types(NULL) {}
 
-      virtual ~pddl_typed_symbol()
+    virtual ~pddl_typed_symbol()
     {
         delete either_types;
     }
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
-      virtual void visit(VisitController * v) const;
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
+    virtual void visit(VisitController * v) const;
   };
 
   // Parameters can be variables or constant symbols
@@ -1490,65 +1486,52 @@ namespace VAL {
     virtual void visit(VisitController * v) const;
   };
 
-
-
-
-
-
   /*---------------------------------------------------------------------------
     Domain.
     ---------------------------------------------------------------------------*/
-
   class domain : public parse_category
   {
   public:
-      operator_list* ops;
-      derivations_list* drvs;
-      string name;
-      pddl_req_flag req;
-      pddl_type_list* types;
-      const_symbol_list* constants;
-      var_symbol_table* pred_vars;  // Vars used in predicate declarations
-      pred_decl_list* predicates;
-      func_decl_list* functions;
-      con_goal * constraints;
+    operator_list* ops;
+    derivations_list* drvs;
+    string name;
+    pddl_req_flag req;
+    pddl_type_list* types;
+    const_symbol_list* constants;
+    var_symbol_table* pred_vars;  // Vars used in predicate declarations
+    pred_decl_list* predicates;
+    func_decl_list* functions;
+    con_goal * constraints;
 
-      domain( structure_store * ss) :
-    ops(ss->get_operators()),
-    drvs(ss->get_derivations()),
-    req(0),
-    types(NULL),
-    constants(NULL),
-    pred_vars(NULL),
-    predicates(NULL),
-    functions(NULL),
-    constraints(NULL)
+    domain(structure_store* ss) :
+      ops(ss->get_operators()), drvs(ss->get_derivations()), req(0), types(0), constants(0),
+      pred_vars(NULL), predicates(NULL), functions(NULL), constraints(NULL)
     {
       delete ss;
     }
 
-      virtual ~domain()
+    virtual ~domain()
     {
       delete drvs;
-        delete ops;
-        delete types;
-        delete constants;
-        delete predicates;
-        delete functions;
-        delete pred_vars;
-        delete constraints;
+      delete ops;
+      delete types;
+      delete constants;
+      delete predicates;
+      delete functions;
+      delete pred_vars;
+      delete constraints;
     }
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
-      bool isDurative() const
-      {
-        return req & (E_DURATIVE_ACTIONS | E_TIME);
-      }
-      bool isTyped() const
-      {
-        return req & (E_TYPING);
-      }
+    bool isDurative() const
+    {
+      return req & (E_DURATIVE_ACTIONS | E_TIME);
+    }
+    bool isTyped() const
+    {
+      return req & (E_TYPING);
+    }
   };
 
   /*----------------------------------------------------------------------------
@@ -1628,57 +1611,46 @@ namespace VAL {
     virtual void visit(VisitController * v) const;
   };
 
-
   /*----------------------------------------------------------------------------
     Problem definition
     --------------------------------------------------------------------------*/
-
   class problem : public parse_category
   {
-
   public:
     char * name;
     char * domain_name;
-      pddl_req_flag req;
-      pddl_type_list* types;
-      const_symbol_list* objects;
-      effect_lists* initial_state;
-      goal* the_goal;
-      con_goal *constraints;
-      metric_spec* metric;
-      length_spec* length;
+    pddl_req_flag req;
+    pddl_type_list* types;
+    const_symbol_list* objects;
+    effect_lists* initial_state;
+    goal* the_goal;
+    con_goal *constraints;
+    metric_spec* metric;
+    length_spec* length;
 
-      problem() :
-      name(0),
-      domain_name(0),
-    req(0),
-    types(NULL),
-    objects(NULL),
-    initial_state(NULL),
-    the_goal(NULL),
-    constraints(NULL),
-    metric(NULL),
-    length(NULL)
-    {}
+    problem() :
+      name(nullptr), domain_name(nullptr), req(0), types(nullptr), objects(nullptr), 
+      initial_state(nullptr), the_goal(nullptr), constraints(nullptr), metric(nullptr), 
+      length(nullptr)
+    {
+    }
 
-      virtual ~problem()
+    virtual ~problem()
     {
       delete [] name;
       delete [] domain_name;
-        delete types;
-        delete objects;
-        delete initial_state;
-        delete the_goal;
-        delete constraints;
-        delete metric;
-        delete length;
+      delete types;
+      delete objects;
+      delete initial_state;
+      delete the_goal;
+      delete constraints;
+      delete metric;
+      delete length;
     }
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
   };
-
-
 
   /*----------------------------------------------------------------------------
     We need to be able to search back through the tables in the stack to
