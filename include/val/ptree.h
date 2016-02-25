@@ -622,40 +622,36 @@ namespace VAL {
       virtual ~operator_symbol() {}
   };
 
-
-
-
   /*---------------------------------------------------------------------------*
     Proposition
    *---------------------------------------------------------------------------*/
-
   class proposition : public parse_category
   {
   public:
-      pred_symbol* head;
-      parameter_symbol_list* args;
+    pred_symbol* head;
+    parameter_symbol_list* args;
 
-      proposition(pred_symbol* h, parameter_symbol_list* a) :
-    head(h), args(a) {}
-
-    proposition(pred_symbol* h, var_symbol_list* a) :
-    head(h), args(new parameter_symbol_list)
+    proposition(pred_symbol* h, parameter_symbol_list* a) :
+      head(h), args(a)
     {
-      for(var_symbol_list::iterator i = a->begin();i != a->end();++i)
-      {
-        args->push_back(*i);
-      }
     }
 
-      virtual ~proposition()
+    proposition(pred_symbol* h, var_symbol_list* a) :
+      head(h), args(new parameter_symbol_list)
+    {
+      for(var_symbol_list::iterator i = a->begin(); i != a->end(); ++i)
+        args->push_back(*i);
+    }
+
+    virtual ~proposition()
     {
         // don't delete head - it belongs to a symbol table
         delete args;
     }
 
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
-      virtual void visit(VisitController * v) const;
+    virtual void display(int ind) const;
+    virtual void write(ostream& o) const;
+    virtual void visit(VisitController* v) const;
   };
 
 
@@ -670,62 +666,58 @@ namespace VAL {
   class pred_decl : public parse_category
   {
   protected:
-      pred_symbol* head;
-      var_symbol_list* args;
-      var_symbol_table* var_tab;
+    pred_symbol* head;
+    var_symbol_list* args;
+    var_symbol_table* var_tab;
 
   public:
-      pred_decl(pred_symbol* h,
-  //        typed_symbol_list<var_symbol>* a,
-          var_symbol_list* a,
-          var_symbol_table* vt) :
-    head(h), args(a), var_tab(vt) {}
+    pred_decl(pred_symbol* h, /*typed_symbol_list<var_symbol>* a,*/ var_symbol_list* a, 
+      var_symbol_table* vt) :
+      head(h), args(a), var_tab(vt)
+    {
+    }
 
     const pred_symbol * getPred() const {return head;}
-      const var_symbol_list * getArgs() const {return args;}
+    const var_symbol_list * getArgs() const {return args;}
 
-      void setTypes(proposition * p) const
-      {
-        var_symbol_list::iterator j = args->begin();
+    void setTypes(proposition * p) const
+    {
+      var_symbol_list::iterator j = args->begin();
       for(parameter_symbol_list::iterator i = p->args->begin();i != p->args->end();++i,++j)
       {
         (*i)->type = (*j)->type;
         (*i)->either_types = (*j)->either_types;
       }
-      }
+    }
 
-      virtual ~pred_decl() { delete args; delete var_tab; }
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
-      virtual void visit(VisitController * v) const;
+    virtual ~pred_decl() { delete args; delete var_tab; }
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
+    virtual void visit(VisitController * v) const;
   };
-
-
 
   class func_decl : public parse_category
   {
   private:
-      func_symbol* head;
-      var_symbol_list* args;
-      var_symbol_table* var_tab;
-
+    func_symbol* head;
+    var_symbol_list* args;
+    var_symbol_table* var_tab;
 
   public:
-      func_decl(func_symbol* h,
-  //        typed_symbol_list<var_symbol>* a,
-          var_symbol_list* a,
-          var_symbol_table* vt) :
-        head(h), args(a), var_tab(vt) {}
+    func_decl(func_symbol* h, /*typed_symbol_list<var_symbol>* a,*/ var_symbol_list* a,
+      var_symbol_table* vt) :
+      head(h), args(a), var_tab(vt)
+    {
+    }
 
     const func_symbol * getFunction() const {return head;}
-      const var_symbol_list * getArgs() const {return args;}
+    const var_symbol_list * getArgs() const {return args;}
 
-      virtual ~func_decl() { delete args; delete var_tab; }
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
+    virtual ~func_decl() { delete args; delete var_tab; }
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
   };
-
 
   class pred_decl_list : public pc_list<pred_decl*>
   {
@@ -1284,14 +1276,9 @@ namespace VAL {
     {}
   };
 
-
-
-
-
   /*----------------------------------------------------------------------------
     Operators
     --------------------------------------------------------------------------*/
-
   class operator_list: public pc_list<operator_*>
   {
   public:
@@ -1303,46 +1290,39 @@ namespace VAL {
   class operator_ : public structure_def
   {
   public:
-      operator_symbol* name;
-      var_symbol_table* symtab;
-      var_symbol_list* parameters;
-      goal* precondition;
-      effect_lists* effects;
+    operator_symbol* name;
+    var_symbol_table* symtab;
+    var_symbol_list* parameters;
+    goal* precondition;
+    effect_lists* effects;
 
-      operator_() : symtab(0), parameters(0), precondition(0), effects(0) {}
-      operator_( operator_symbol* nm,
-           var_symbol_list* ps,
-           goal* pre,
-           effect_lists* effs,
-           var_symbol_table* st) :
-    name(nm),
-    symtab(st),
-    parameters(ps),
-    precondition(pre),
-    effects(effs)
-
-    {}
-      virtual ~operator_()
+    operator_() :
+      symtab(0), parameters(0), precondition(0), effects(0)
     {
-        delete parameters;
-        delete precondition;
-        delete effects;
-        delete symtab;
     }
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
+
+    operator_(operator_symbol* nm, var_symbol_list* ps, goal* pre, effect_lists* effs,
+      var_symbol_table* st) :
+      name(nm), symtab(st), parameters(ps), precondition(pre), effects(effs)
+    {
+    }
+
+    virtual ~operator_()
+    {
+      delete parameters;
+      delete precondition;
+      delete effects;
+      delete symtab;
+    }
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
 
-      virtual void add_to(operator_list* ops, derivations_list* /*dvs*/)
-      {
+    virtual void add_to(operator_list* ops, derivations_list* /*dvs*/)
+    {
       ops->push_back(this);
     }
-
   };
-
-
-
-
 
   /*-------------------------------------------------------------------------
    * Structure store
@@ -1422,67 +1402,59 @@ namespace VAL {
       process
       durative_action
     --------------------------------------------------------------------------*/
-
   class action : public operator_
   {
   public:
-      action( operator_symbol* nm,
-        var_symbol_list* ps,
-        goal* pre,
-        effect_lists* effs,
-        var_symbol_table* st) :
-    operator_(nm,ps,pre,effs,st)
-    {}
-      virtual ~action() {}
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
+    action(operator_symbol* nm, var_symbol_list* ps, goal* pre, effect_lists* effs, 
+      var_symbol_table* st) :
+      operator_(nm, ps, pre, effs, st)
+    {
+    }
+    virtual ~action() {}
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
   };
 
   class event : public operator_
   {
   public:
-      event( operator_symbol* nm,
-       var_symbol_list* ps,
-       goal* pre,
-       effect_lists* effs,
-       var_symbol_table* st) :
-    operator_(nm,ps,pre,effs,st)
-    {}
-      virtual ~event() {}
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
-    virtual void visit(VisitController * v) const;
+    event(operator_symbol* nm, var_symbol_list* ps, goal* pre, effect_lists* effs, 
+      var_symbol_table* st) :
+      operator_(nm,ps,pre,effs,st)
+    {
+    }
+    virtual ~event() {}
+    virtual void display(int ind) const;
+    virtual void write(ostream& o) const;
+    virtual void visit(VisitController* v) const;
   };
 
   class process : public operator_
   {
   public:
-      process( operator_symbol* nm,
-         var_symbol_list* ps,
-         goal* pre,
-         effect_lists* effs,
-         var_symbol_table* st) :
-    operator_(nm,ps,pre,effs,st)
-    {}
-      virtual ~process() {}
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
+    process( operator_symbol* nm, var_symbol_list* ps, goal* pre, effect_lists* effs,
+      var_symbol_table* st) :
+      operator_(nm, ps, pre, effs, st)
+    {
+    }
+    virtual ~process() {}
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
   };
-
 
   class durative_action : public operator_
   {
   public:
-      goal* dur_constraint;
-      durative_action() {}
-      virtual ~durative_action()
+    goal* dur_constraint;
+    durative_action() {}
+    virtual ~durative_action()
     {
-        delete dur_constraint;
+      delete dur_constraint;
     }
-      virtual void display(int ind) const;
-      virtual void write(ostream & o) const;
+    virtual void display(int ind) const;
+    virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
   };
 
