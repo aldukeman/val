@@ -809,7 +809,7 @@ namespace VAL
       if (flags & E_EXT_PRECS) result += ":existential-preconditions ";
       if (flags & E_UNIV_PRECS) result += ":universal-preconditions ";
       if (flags & E_COND_EFFS) result += ":conditional-effects ";
-      if (flags & E_NFLUENTS) result += ":number-fluents ";
+      if (flags & E_NFLUENTS) result += ":numeric-fluents ";
       if (flags & E_OFLUENTS) result += ":object-fluents ";
       if (flags & E_ACTIONCOSTS) result += ":action-costs ";
       if (flags & E_DURATIVE_ACTIONS) result += ":durative-actions ";
