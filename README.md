@@ -1,6 +1,8 @@
 # val
 PDDL 3.1 plan validator mirror
 
+The following is copied from the source code provided by the original VAL authors
+
 
 VAL - The Automatic Plan Validator for PDDL3
 ==============================================
