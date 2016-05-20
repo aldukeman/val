@@ -1,0 +1,7 @@
+image: aldukeman/ubuntu_xenial
+
+libval:
+  stage: build
+  script:
+    - cmake .
+    - make

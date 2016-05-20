@@ -12,14 +12,13 @@ set(VAL_VERSION_MINOR 0)
 include_directories("${PROJECT_SOURCE_DIR}/include/val")
 include_directories("${PROJECT_SOURCE_DIR}/src")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/include -Wall -Wextra -pedantic -Werror")
 
 # libval instructions
 add_custom_command(
   OUTPUT src/val/lex.yy.cc src/val/pddl+.cpp
   COMMAND flex++ -o src/val/lex.yy.cc src/pddl+.lex && bison src/pddl+.yacc -o src/val/pddl+.cpp
   DEPENDS src/pddl+.lex src/pddl+.yacc)
-#source_group("val_files" REGULAR_EXPRESSION "src/val/.*\\.cpp")
 add_library(val SHARED
   src/val/pddl+.cpp 
   src/val/Action.cpp

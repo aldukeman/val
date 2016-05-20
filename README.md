@@ -1,7 +1,9 @@
 # val
 PDDL 3.1 plan validator mirror
 
-The following is copied from the source code provided by the original VAL authors
+Confirmed to work with flex-2.5.39
+
+The following is copied from the source code provided by the original VAL authors. 
 
 
 VAL - The Automatic Plan Validator for PDDL3
