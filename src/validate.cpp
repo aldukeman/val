@@ -565,7 +565,7 @@ int main(int argc,char * argv[])
     bool CheckDPs = true;
     bool giveAdvice = true;
 
-    double tolerance = 0.01;
+    double tolerance = 0.001;
     bool lengthDefault = true;
     double robustMeasure = 0;
     int noTestPlans = 1000;
