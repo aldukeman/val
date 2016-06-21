@@ -876,9 +876,11 @@ Validator::~Validator()
 }
 
 void
-Validator::resetPlan(const plan* p, const operator_list* ops)
+Validator::reset(const plan* p, const operator_list* ops, const State& s)
 {
   theplan = Plan(this, ops, p);
+  state = s;
+  finalInterestingState = 0;
   followUp = theplan.end();
   thisStep = theplan.begin();
 }
