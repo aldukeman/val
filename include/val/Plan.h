@@ -326,8 +326,11 @@ namespace VAL
     Plan(Validator* v, const operator_list* ops, const plan* p);
     ~Plan()
     {
-      for(HappeningSeq::const_iterator i = happenings.begin(); i != happenings.end();++i)
-        delete (*i);
+    /**
+     * ALD: I hate doing this, but poor memory management elsewhere requires this...
+     */
+//      for(HappeningSeq::const_iterator i = happenings.begin(); i != happenings.end();++i)
+//        delete (*i);
     }
 
     Happening * lastHappening() const

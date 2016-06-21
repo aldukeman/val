@@ -875,6 +875,14 @@ Validator::~Validator()
   delete finalInterestingState;
 }
 
+void
+Validator::resetPlan(const plan* p, const operator_list* ops)
+{
+  theplan = Plan(this, ops, p);
+  followUp = theplan.end();
+  thisStep = theplan.begin();
+}
+
 bool DerivationRules::checkDerivedPredicates() const
 {        
   if(!effects())
