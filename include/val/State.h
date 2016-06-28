@@ -103,6 +103,7 @@ namespace VAL
     void del(const SimpleProposition *);
     void update(const FuncExp * fe,assign_op aop,FEScalar value);
 
+    const NumericalState & getNumericalState() const { return feValue; }
     const LogicalState & getLogicalState() const { return logState; }
     //to also record what has changed
     void addChange(const SimpleProposition *);
