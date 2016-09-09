@@ -876,13 +876,22 @@ Validator::~Validator()
 }
 
 void
-Validator::reset(const plan* p, const operator_list* ops, const State& s)
+Validator::reset(const plan* p, const operator_list* ops, con_goal* cg1, con_goal* cg2, const effect_lists* is)
 {
   theplan = Plan(this, ops, p);
-  state = s;
   finalInterestingState = 0;
   followUp = theplan.end();
   thisStep = theplan.begin();
+
+  stepcount = p->size();
+  invariantWarnings.clear();
+  actionRegistry.clear();
+  graphs.clear();
+  violations.clear();
+
+  state = State(this, is);
+  tjm = TrajectoryConstraintsMonitor(this, cg1, cg2);
+  events = Events(ops);
 }
 
 bool DerivationRules::checkDerivedPredicates() const

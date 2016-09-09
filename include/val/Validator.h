@@ -237,7 +237,7 @@ namespace VAL
     }
     ~Validator();
 
-    void reset(const plan* p, const operator_list* ops, const State& s);
+    void reset(const plan* p, const operator_list* ops, con_goal* cg1, con_goal* cg2, const effect_lists* is);
 
     bool execute();
     bool checkGoal(const goal* g);
